@@ -1,0 +1,22 @@
+{
+  "name": "PavLang",
+  "version": "0.0.1",
+  "description": "A very simple DLS to develop behavior analysis experiments",
+  "main": "index.js",
+  "author": "Judson Barroso",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.6",
+    "@babel/preset-env": "^7.8.6",
+    "@babel/preset-typescript": "^7.8.3",
+    "babel-jest": "^25.1.0",
+    "babel-preset-minify": "^0.5.1",
+    "jest": "^25.1.0"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "babel src/*.ts --out-file index.js --presets minify"
+  },
+  "dependencies": {}
+}
