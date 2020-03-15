@@ -1,5 +1,5 @@
 {
-  "name": "PavLang",
+  "name": "pavlang",
   "version": "0.0.1",
   "description": "A very simple DLS to develop behavior analysis experiments",
   "main": "index.js",
