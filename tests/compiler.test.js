@@ -1,7 +1,5 @@
 const pavlang = require('../dist/pavlang.js');
 
-console.log("Aqui, deu certo =>", pavlang);
-
 test('pre-processing - clean code', () => {
     
     const text1 = `   
@@ -47,12 +45,12 @@ R2=button.a666.click
 R3=app.init
 asdfasdfadaadfafad`).split(/\n/g);
 
-    expect(pavlang.splitCode(text)).toEqual(expectedResult); 
+    expect(pavlang._splitCode(text)).toEqual(expectedResult); 
 });
 
 test('lexers - tokenizer', () => {
     
-    const text = pavlang.splitCode(pavlang._cleanCode(`
+    const text = pavlang._splitCode(pavlang._cleanCode(`
         #Respostas
         R1 =    button.amarelo.click
         C1 =    message.a666.show
@@ -62,11 +60,11 @@ test('lexers - tokenizer', () => {
     `));
 
     const expectedResult = [
-        { text: 'R1=button.amarelo.click', type: pavlang.Type.Response },
-        { text: 'C1=message.a666.show', type: pavlang.Type.Consequence },
-        { text: '&1=R1*4->C1', type: pavlang.Type.Contingence },
-        { text: 'asdfasdfadaadfafad', type: pavlang.Type.Error },
-        { text: '@1=&1*4->app.finish', type: pavlang.Type.Condition }
+        { text: 'R1=button.amarelo.click', type: pavlang._Type.Response },
+        { text: 'C1=message.a666.show', type: pavlang._Type.Consequence },
+        { text: '&1=R1*4->C1', type: pavlang._Type.Contingence },
+        { text: 'asdfasdfadaadfafad', type: pavlang._Type.Error },
+        { text: '@1=&1*4->app.finish', type: pavlang._Type.Condition }
     ];
 
     expect(pavlang._tokenizer(text)).toEqual(expectedResult); 
@@ -83,11 +81,11 @@ test('lexers - all', () => {
     `;
 
     const expectedResult = [
-        { text: 'R1=button.amarelo.click', type: pavlang.Type.Response },
-        { text: 'C1=message.a666.show', type: pavlang.Type.Consequence },
-        { text: '&1=R1*4->C1', type: pavlang.Type.Contingence },
-        { text: 'asdfasdfadaadfafad', type: pavlang.Type.Error },
-        { text: '@1=&1*4->app.finish', type: pavlang.Type.Condition }
+        { text: 'R1=button.amarelo.click', type: pavlang._Type.Response },
+        { text: 'C1=message.a666.show', type: pavlang._Type.Consequence },
+        { text: '&1=R1*4->C1', type: pavlang._Type.Contingence },
+        { text: 'asdfasdfadaadfafad', type: pavlang._Type.Error },
+        { text: '@1=&1*4->app.finish', type: pavlang._Type.Condition }
     ];
 
     expect(pavlang._tokenize(text)).toEqual(expectedResult);
@@ -111,7 +109,7 @@ test('helpers - merge', () => {
     objB.actions['C2'] = ['xablau:hide'];
     objB.interface.button.push('botaoA');
 
-    const result = pavlang.merge(objA, objB);
+    const result = pavlang._merge(objA, objB);
 
     expect(result).toHaveProperty('actions.C1', ['bxxx:show', 'a666:show']);
     expect(result).toHaveProperty('actions.C2', ['xablau:hide']);
@@ -293,7 +291,7 @@ test('interpreter - simple', () => {
         .toHaveProperty('error', pavlang._messageErrors.notAlreadyStarted());
     
     expect(myMachine('INIT')).toMatchObject({
-        error: null,
+        error: '',
         run: 'INIT'
     });
 
@@ -304,7 +302,7 @@ test('interpreter - simple', () => {
         const resultR1 = myMachine('R1');
 
         expect(resultR1).toMatchObject({
-            error: null,
+            error: '',
             run: [ 'C1' ]
         });
 
@@ -313,7 +311,7 @@ test('interpreter - simple', () => {
         const finishResult = myMachine('FINISH');
 
         expect(finishResult).toMatchObject({
-            error: null,
+            error: '',
             run: 'FINISH'
         });
 
