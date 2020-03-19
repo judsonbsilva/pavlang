@@ -2,7 +2,7 @@
   "name": "pavlang",
   "version": "0.0.1",
   "description": "A very simple DLS to develop behavior analysis experiments",
-  "main": "./dist/index.js",
+  "main": "./dist/pavlang.js",
   "author": "Judson Barroso",
   "license": "MIT",
   "devDependencies": {
