@@ -17,8 +17,7 @@
   },
   "scripts": {
     "dev": "webpack --mode=development --display-error-details",
-    "test": "jest",
-    "start": "npm run dev && npm run test",
+    "test": "npm run dev && jest",
     "build": "webpack --mode=production"
   },
   "dependencies": {}
