@@ -1,4 +1,4 @@
-const getKeys = (obj: object) => {
+const getKeys = (obj: object): string[] => {
   let list = [];
   for(let key in obj)
     if(key)
@@ -28,9 +28,9 @@ const merge = (objA: any, objB: any, isNotUnion?: boolean) => {
   if( !objB ) return objA;
   
   if( isObj(objA) && isObj(objB) ){
-    var newObj = {};
-    var keysA = getKeys(objA);
-    var keysB = getKeys(objB);
+    var newObj: any = {};
+    var keysA: Array<string> = getKeys(objA);
+    var keysB: Array<string> = getKeys(objB);
     
     keysA.forEach((key) => {
       newObj[key] = merge(objA[key], objB[key], isNotUnion);
@@ -46,12 +46,12 @@ const merge = (objA: any, objB: any, isNotUnion?: boolean) => {
     
     /* Se for lista faz uma união ou concatena */
   } else if( isArr(objA) && isArr(objB) ){
-    let newArr;
+    let newArr: any[];
     if(isNotUnion ){
       newArr = objA.concat(objB);
     } else {
       newArr = [...objA];
-      objB.forEach((x) => {
+      objB.forEach((x: any) => {
         if(!newArr.includes(x))
           newArr.push(x)
       });
@@ -89,7 +89,7 @@ Intervalo de contingência inválido: "${line}"`,
 
   invalidInput: (input:string) => `Entrada inválida ${input}`,
 
-  codeError: (errors:[string]) => `Erro no código:
+  codeError: (errors:string[]) => `Erro no código:
   ${errors.join('\n')}`,
 
   alreadyStarted: () => `O app já foi iniciado`,

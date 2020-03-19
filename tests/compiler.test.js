@@ -1,8 +1,6 @@
-const lexers = require('../src/lexers');
-const parsers = require('../src/parsers');
-const helpers = require('../src/helpers');
-const wordbook = require('../src/wordbook');
-const pavlang = require('../src/interpreter');
+const pavlang = require('../dist/pavlang.js');
+
+console.log("Aqui, deu certo =>", pavlang);
 
 test('pre-processing - clean code', () => {
     
@@ -22,19 +20,19 @@ R2=button.a666.click
 R3=app.init
 asdfasdfadaadfafad
 `;
-    expect(lexers.cleanCode(text1)).toBe(expectedResult1);
+    expect(pavlang._cleanCode(text1)).toBe(expectedResult1);
     
     const text2 = `#Xablau
     R1 = button.blue2.click`;
     const expectedResult2 = `
 R1=button.blue2.click`;
 
-    expect(lexers.cleanCode(text2)).toBe(expectedResult2);
+    expect(pavlang._cleanCode(text2)).toBe(expectedResult2);
 });
 
 test('pre-processing - split code', () => {
     
-    const text = lexers.cleanCode(`
+    const text = pavlang._cleanCode(`
     #Respostas
     R1 =    button.amarelo.click
     R2 =    button.a666.click
@@ -49,12 +47,12 @@ R2=button.a666.click
 R3=app.init
 asdfasdfadaadfafad`).split(/\n/g);
 
-    expect(lexers.splitCode(text)).toEqual(expectedResult); 
+    expect(pavlang.splitCode(text)).toEqual(expectedResult); 
 });
 
 test('lexers - tokenizer', () => {
     
-    const text = lexers.splitCode(lexers.cleanCode(`
+    const text = pavlang.splitCode(pavlang._cleanCode(`
         #Respostas
         R1 =    button.amarelo.click
         C1 =    message.a666.show
@@ -64,14 +62,14 @@ test('lexers - tokenizer', () => {
     `));
 
     const expectedResult = [
-        { text: 'R1=button.amarelo.click', type: lexers.Type.Response },
-        { text: 'C1=message.a666.show', type: lexers.Type.Consequence },
-        { text: '&1=R1*4->C1', type: lexers.Type.Contingence },
-        { text: 'asdfasdfadaadfafad', type: lexers.Type.Error },
-        { text: '@1=&1*4->app.finish', type: lexers.Type.Condition }
+        { text: 'R1=button.amarelo.click', type: pavlang.Type.Response },
+        { text: 'C1=message.a666.show', type: pavlang.Type.Consequence },
+        { text: '&1=R1*4->C1', type: pavlang.Type.Contingence },
+        { text: 'asdfasdfadaadfafad', type: pavlang.Type.Error },
+        { text: '@1=&1*4->app.finish', type: pavlang.Type.Condition }
     ];
 
-    expect(lexers.tokenizer(text)).toEqual(expectedResult); 
+    expect(pavlang._tokenizer(text)).toEqual(expectedResult); 
 });
 
 test('lexers - all', () => {
@@ -85,35 +83,35 @@ test('lexers - all', () => {
     `;
 
     const expectedResult = [
-        { text: 'R1=button.amarelo.click', type: lexers.Type.Response },
-        { text: 'C1=message.a666.show', type: lexers.Type.Consequence },
-        { text: '&1=R1*4->C1', type: lexers.Type.Contingence },
-        { text: 'asdfasdfadaadfafad', type: lexers.Type.Error },
-        { text: '@1=&1*4->app.finish', type: lexers.Type.Condition }
+        { text: 'R1=button.amarelo.click', type: pavlang.Type.Response },
+        { text: 'C1=message.a666.show', type: pavlang.Type.Consequence },
+        { text: '&1=R1*4->C1', type: pavlang.Type.Contingence },
+        { text: 'asdfasdfadaadfafad', type: pavlang.Type.Error },
+        { text: '@1=&1*4->app.finish', type: pavlang.Type.Condition }
     ];
 
-    expect(lexers.tokenize(text)).toEqual(expectedResult);
+    expect(pavlang._tokenize(text)).toEqual(expectedResult);
 });
 
 test('helpers - clone deep', () => {
     const objA = { a: [1,2,3], b: true, c: 'la la la' };
-    const objB = helpers.cloneDeep(objA);
+    const objB = pavlang._cloneDeep(objA);
 
     expect(objA).toEqual(objB);
     expect(objA).not.toBe(objB);
 });
 
 test('helpers - merge', () => {
-    let objA = helpers.cloneDeep(wordbook.defaultData);
+    let objA = pavlang._cloneDeep(pavlang._defaultData);
     objA.actions['C1'] = ['bxxx:show'];
-    objA.errors.push(helpers.messageErrors.inLine('CREDO'));
+    objA.errors.push(pavlang._messageErrors.inLine('CREDO'));
 
-    let objB = helpers.cloneDeep(wordbook.defaultData);
+    let objB = pavlang._cloneDeep(pavlang._defaultData);
     objB.actions['C1'] = ['a666:show'];
     objB.actions['C2'] = ['xablau:hide'];
     objB.interface.button.push('botaoA');
 
-    const result = helpers.merge(objA, objB);
+    const result = pavlang.merge(objA, objB);
 
     expect(result).toHaveProperty('actions.C1', ['bxxx:show', 'a666:show']);
     expect(result).toHaveProperty('actions.C2', ['xablau:hide']);
@@ -122,7 +120,7 @@ test('helpers - merge', () => {
 
 test('parsers - response', () => {
     
-    const code = lexers.tokenize(`
+    const code = pavlang._tokenize(`
         #Respostas
         R1 = button.amarelo.click
         R2 = button.a666.click
@@ -131,13 +129,13 @@ test('parsers - response', () => {
         asdfasdfada adf afad
     `);
 
-    const result = parsers.codeParser(code);
+    const result = pavlang.codeParser(code);
 
     expect(result).toHaveProperty('events.click', ['amarelo:R1', 'a666:R2', 'bxxx:R3']);
     expect(result).toHaveProperty('interface.button', ['amarelo', 'a666']);
     expect(result).toHaveProperty('interface.message', ['bxxx']);    
     expect(result).toHaveProperty('errors', [
-        helpers.messageErrors.inLine('asdfasdfadaadfafad')
+        pavlang._messageErrors.inLine('asdfasdfadaadfafad')
     ]);
     expect(result.responses).toContain('R1');
     expect(result.responses).toContain('R2');
@@ -146,7 +144,7 @@ test('parsers - response', () => {
 
 test('parsers - consequence', () => {
     
-    const code = lexers.tokenize(`
+    const code = pavlang._tokenize(`
         #Respostas
         R1 = button.amarelo.click
         R2 = button.a666.click
@@ -165,20 +163,20 @@ test('parsers - consequence', () => {
         asdfasdfada adf afad
     `);
 
-    const result = parsers.codeParser(code);
+    const result = pavlang.codeParser(code);
     
     expect(result).toHaveProperty('actions.C1', ['b245:show']);
     expect(result).toHaveProperty('actions.C2', ['app:reset']);
     expect(result).toHaveProperty('interface.button', ['amarelo', 'a666']);
     expect(result).toHaveProperty('interface.message', ['b245']);    
     expect(result).toHaveProperty('errors', [
-        helpers.messageErrors.inLine('asdfasdfadaadfafad')
+        pavlang._messageErrors.inLine('asdfasdfadaadfafad')
     ]); 
 });
 
 test('parsers - simple contingence', () => {
     
-    const code = lexers.tokenize(`
+    const code = pavlang._tokenize(`
         #Respostas
         R1 = button.amarelo.click
 
@@ -189,7 +187,7 @@ test('parsers - simple contingence', () => {
         &1 = R1 -> C1
     `);
 
-    const result = parsers.codeParser(code);
+    const result = pavlang.codeParser(code);
     
     expect(result).toHaveProperty('actions.C1', ['b245:show']);
     expect(result).toHaveProperty('interface.button', ['amarelo']);
@@ -208,7 +206,7 @@ test('parsers - simple contingence', () => {
 
 test('parsers - contingence with fixed reason and interval', () => {
     
-    const code = lexers.tokenize(`
+    const code = pavlang._tokenize(`
         #Respostas
         R1 = button.amarelo.click
         R2 = button.verde.click
@@ -222,7 +220,7 @@ test('parsers - contingence with fixed reason and interval', () => {
         &2 = R2 -5s-> C2 
     `);
 
-    const result = parsers.codeParser(code);
+    const result = pavlang.codeParser(code);
     
     expect(result.controllers).toContainEqual({
         input: 'R1',
@@ -248,7 +246,7 @@ test('parsers - contingence with fixed reason and interval', () => {
 
 
 test('parsers - semantic analysis', () => {
-    const code = lexers.tokenize(`
+    const code = pavlang._tokenize(`
         #Respostas
         R1 = button.amarelo.click
         R2 = button.verde.click
@@ -262,21 +260,21 @@ test('parsers - semantic analysis', () => {
         &2 = R2 -5s-> C2 
     `);
 
-    const data = parsers.codeParser(code);
-    const result = parsers.semanticAnalyse(data);
+    const data = pavlang.codeParser(code);
+    const result = pavlang.semanticAnalyse(data);
 
     expect(result.errors).toContain(
-        helpers.messageErrors.undefinedElement('R3')
+        pavlang._messageErrors.undefinedElement('R3')
     );
 
     expect(result.errors).toContain(
-        helpers.messageErrors.undefinedElement('C5')
+        pavlang._messageErrors.undefinedElement('C5')
     );
 });
 
 test('interpreter - simple', () => {
     
-    const code = lexers.tokenize(`
+    const code = pavlang._tokenize(`
         #Respostas
         R1 = button.amarelo.click
 
@@ -287,12 +285,12 @@ test('interpreter - simple', () => {
         &1 = R1 -> C1
     `);
 
-    const data = parsers.codeParser(code);
-    const resultData = parsers.semanticAnalyse(data);
+    const data = pavlang.codeParser(code);
+    const resultData = pavlang.semanticAnalyse(data);
     const myMachine = pavlang.createMachine(resultData);
 
     expect(myMachine('R1'))
-        .toHaveProperty('error', helpers.messageErrors.notAlreadyStarted());
+        .toHaveProperty('error', pavlang._messageErrors.notAlreadyStarted());
     
     expect(myMachine('INIT')).toMatchObject({
         error: null,
@@ -300,7 +298,7 @@ test('interpreter - simple', () => {
     });
 
     expect(myMachine('R2'))
-        .toHaveProperty('error', helpers.messageErrors.invalidInput('R2'));
+        .toHaveProperty('error', pavlang._messageErrors.invalidInput('R2'));
 
     setTimeout(() => {
         const resultR1 = myMachine('R1');
