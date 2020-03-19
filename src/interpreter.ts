@@ -1,5 +1,5 @@
 import { messageErrors, convertTime, cloneDeep } from './helpers';
-import { validAppCmds } from './wordbook';
+import { DataType, validAppCmds } from './wordbook';
 import { codeParser, semanticAnalyse } from './parsers';
 
 /*  Função que retorna uma máquina de estados
@@ -7,23 +7,33 @@ import { codeParser, semanticAnalyse } from './parsers';
 */
 
 /* Estado padrão da máquina */
-const defaultState = {
-    initialized: null,
+interface StateType {
+    initialized: boolean,
+    counters: object,
+    intervals: object,
+    variables: object,
+    timer: number,
+    elapsed: number,
+    history: object[]
+};
+
+const defaultState: StateType = {
+    initialized: false,
     counters: {},
     intervals: {},
     variables: {},
-    timer: null,
+    timer: -1,
     elapsed: 0,
     history: []
 };
 
-const createMachine = (data, interval = 200) => {
+const createMachine = (data: DataType, interval = 200) => {
 
     if(data.errors.length > 0){
         return function(){
             return {
                 error: messageErrors.codeError(data.errors),
-                run: null,
+                run: false,
                 data
             }
         };
@@ -47,11 +57,11 @@ const createMachine = (data, interval = 200) => {
 
     const machine = function(input: string){
 
-        let toReturn = {
+        let toReturn:any = {
             /* Se tiver algum erro, retorna */
-            error: null,
+            error: '',
             /* Se houver alguma consequência, retorna */
-            run: null,
+            run: false,
             /* Tempo decorrido desde o início */
             elapsed: state.elapsed,
             /* Hora atual */
@@ -78,7 +88,7 @@ const createMachine = (data, interval = 200) => {
                     return toReturn;
                 }
 
-                data.controllers.forEach(ctrl => {
+                data.controllers.forEach( (ctrl:any) => {
                     state.counters[ctrl.input] = 0;
                     if( ctrl.runAfter.time ){
                         state.intervals[ctrl.input] = convertTime(
@@ -118,8 +128,8 @@ const createMachine = (data, interval = 200) => {
            duas contingências diferentes
         */
         state.counters[input] += 1;
-        let consequence = null;
-        data.controllers.forEach(ctrl => {
+        let consequence: string[] = [];
+        data.controllers.forEach( (ctrl:any) => {
             if(ctrl.input == input){
                 if( ctrl.runAfter.attempts == 1 )
                     consequence = ctrl.output;
@@ -134,7 +144,7 @@ const createMachine = (data, interval = 200) => {
             toReturn.run = consequence;
         });
 
-        if( consequence )
+        if( consequence.length > 0 )
             state.history.push(cloneDeep(toReturn));
         
         return toReturn;

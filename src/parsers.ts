@@ -103,10 +103,16 @@ const hasInterval = /-(\d+)([ms]{1,2})$/;
 const hasReason = /\*(\d+)$/;
 const hasMany = /\|/;
 
-const contingenceParser = (code) => {
+interface ContingenceType {
+    input: string,
+    output?: string[],
+    runAfter: any
+};
+
+const contingenceParser = (code: string) => {
     let toReturn = cloneDeep(defaultData);
-    let controller = {
-        input: null,
+    let controller: ContingenceType = {
+        input: '',
         output: null,
         runAfter: {
             attempts: 1,
@@ -154,12 +160,13 @@ const contingenceParser = (code) => {
         /* Tratamento da Consequência (C) */
         /* Se houver várias consequências para essa resposta,
         transforma "C" em lista */
+        let listC : string[];
         if( hasMany.test(C) )
-            C = C.split('|');
+            listC = C.split('|');
         else 
-            C = [C];
+            listC = [C];
 
-        controller.output = C;
+        controller.output = listC;
         toReturn.controllers.push(controller);
     } catch(e) {
         toReturn.errors.push(messageErrors.invalidContingence(code));
@@ -167,9 +174,9 @@ const contingenceParser = (code) => {
     return toReturn;
 }
 
-const codeParser = (lines) => {
+const codeParser = (lines: any) => {
     var codeData = cloneDeep(defaultData);
-    lines.forEach((line) => {
+    lines.forEach((line:any) => {
         var data;
         switch(line.type){
             case Type.Response:
@@ -206,14 +213,14 @@ const codeParser = (lines) => {
 }
 
 /* Verifica se existe algum elemento sendo chamado nas contingências que não existe no código */
-const semanticAnalyse = (parsedCode) => {
+const semanticAnalyse = (parsedCode:any) => {
     let toReturn = cloneDeep(parsedCode);
     const consequences = getKeys(toReturn.actions);
-    parsedCode.controllers.forEach((obj) => {
+    parsedCode.controllers.forEach((obj:any) => {
         if( !toReturn.responses.includes(obj.input) )
             toReturn.errors.push(messageErrors.undefinedElement(obj.input));
         
-        obj.output.forEach((outs) => {
+        obj.output.forEach((outs:any) => {
             if( !consequences.includes(outs) )
                 toReturn.errors.push(messageErrors.undefinedElement(obj.output));
         });

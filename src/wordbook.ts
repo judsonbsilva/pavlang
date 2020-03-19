@@ -8,7 +8,17 @@ const validAppCmds = ['INIT', 'RESET','FINISH'];
 /*
  Conjunto padrão com todos os dados da aplicação, cuidado ao alterar
  */
-const defaultData = {
+
+interface DataType {
+    events: object,
+    interface: object,
+    actions: object,
+    errors: string[],
+    controllers: object[],
+    responses: string[]
+};
+
+const defaultData:DataType = {
     events:{ init:[], finish: [], click:[] },
     interface: { button:[], message:[], counter:[], screen: [] },
     actions: {},
@@ -18,6 +28,7 @@ const defaultData = {
 };
 
 export {
+    DataType,
     defaultData,
     validActions,
     validEvents,
